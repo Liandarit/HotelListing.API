@@ -2,67 +2,61 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelListing.API.Data;
 using HotelListing.API.Models;
+using AutoMapper;
+using HotelListing.API.DTOs.HotelsDTOs;
 
 namespace HotelListing.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class HotelsController(HotelListingDb context) : ControllerBase
+public class HotelsController(HotelListingDb context, IMapper mapper) : ControllerBase
 {
+    public readonly IMapper mapper = mapper;
 
     // GET: api/Hotels
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
+    public async Task<ActionResult<GetHotelsDto>> GetHotels()
     {
-        var hotels = context.Hotels
+        var hotels = await context.Hotels
             .Include(h=>h.Country)
+            .Include(h=>h.Reviews)
             .ToListAsync();
-        return await hotels;
+        var HotelsDto = mapper.Map<GetHotelsDto>(hotels);
+        return Ok(HotelsDto);
     }
 
     // GET: api/Hotels/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Hotel>> GetHotel(int id)
+    public async Task<ActionResult<GetHotelDto>> GetHotel(int id)
     {
         var hotel = await context.Hotels
             .Include(h=>h.Country)
+            .Include (h=>h.Reviews)
             .FirstOrDefaultAsync(h=>h.Id==id);
 
         if (hotel == null)
         {
             return NotFound();
         }
-
-        return hotel;
+        var HotelDto= mapper.Map<GetHotelDto>(hotel);
+        return HotelDto;
     }
 
     // PUT: api/Hotels/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutHotel(int id, Hotel hotel)
+    public async Task<IActionResult> PutHotel(int id, UpdateHotelDto dto)
     {
-        if (id != hotel.Id)
+        if (id != dto.Id)
         {
             return BadRequest();
         }
+        var hotel = await context.Hotels.FindAsync(id);
 
-        context.Entry(hotel).State = EntityState.Modified;
+        if (hotel == null) { return NotFound(); }
+        mapper.Map(dto,hotel);
 
-        try
-        {
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!HotelExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+        await context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -70,8 +64,9 @@ public class HotelsController(HotelListingDb context) : ControllerBase
     // POST: api/Hotels
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<Hotel>> PostHotel(Hotel hotel)
+    public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDto dto)
     {
+        var hotel = mapper.Map<Hotel>(dto);
         context.Hotels.Add(hotel);
         await context.SaveChangesAsync();
 

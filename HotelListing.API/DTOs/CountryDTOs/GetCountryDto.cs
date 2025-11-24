@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HotelListing.API.Models
+namespace HotelListing.API.DTOs.CountryDTOs
 {
-    public class Country
+    public class GetCountryDto
     {
-        public required int Id { get; set; }
+        public int Id { get; set; }
         public required string Name { get; set; }
         public required string ShortName { get; set; }
-        public ICollection<Hotel>? Hotels { get; set; }
     }
 }

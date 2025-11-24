@@ -1,21 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HotelListing.API.Models
+namespace HotelListing.API.DTOs.ReviewDTOs
 {
-    public class Review
+    public class GetReviewsDto
     {
         public int Id { get; set; }
         public required int Rating { get; set; }
         public required string Comment { get; set; }
         public required int HotelId { get; set; }
         public required int UserId { get; set; }
-        public required DateTime CreatedAt { get; set; }= DateTime.Now;
-        public required bool IsDeleted { get; set; }= false;
+        public required DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-        public DateTime? DeletedAt {  get; set; }
 
-        public Hotel? Hotel { get; set; }
-        public User? User { get; set; }
 
     }
 }

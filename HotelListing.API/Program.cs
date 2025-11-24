@@ -1,7 +1,10 @@
 using HotelListing.API.Controllers;
 using HotelListing.API.Data;
+using HotelListing.API.DTOs;
+using HotelListing.API.DTOs.HotelsDTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 //DbContext confg. with DI
 var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 builder.Services.AddDbContext<HotelListingDb>(options => options.UseSqlServer(ConnectionString));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(typeof(MappingProfiles)));
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
     {
