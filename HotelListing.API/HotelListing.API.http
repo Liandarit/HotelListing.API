@@ -1,35 +1,77 @@
 @HotelListing.API_HostAddress = https://localhost:7227
 
+GET {{HotelListing.API_HostAddress}}/api/countries
 
-###
 
-GET {{HotelListing.API_HostAddress}}/api/hotelcrontroller
+### Working
 
-###
+GET {{HotelListing.API_HostAddress}}/api/countries/{{id}}
 
-POST {{HotelListing.API_HostAddress}}/api/hotelcrontroller
+### Working
+
+POST {{HotelListing.API_HostAddress}}/api/countries
 Content-Type: application/json
 
 {
-  //Hotel
+  "Name": "Turkey",
+  "ShortName": "TR"
 }
 
-###
+### Working
 
-@id=1
-DELETE {{HotelListing.API_HostAddress}}/api/hotelcrontroller/{{id}}
+DELETE {{HotelListing.API_HostAddress}}/api/countries/{{id}}
 
-###
+### Working
 
-GET {{HotelListing.API_HostAddress}}/api/hotelcrontroller/{{id}}
-
-###
-
-PUT {{HotelListing.API_HostAddress}}/api/hotelcrontroller/{id}
+PUT {{HotelListing.API_HostAddress}}/api/countries/{{id}}
 Content-Type: application/json
 
 {
-  //Hotel
+  "id": 4,
+  "name": "United States of America",
+  "shortName": "USA"
 }
 
-###
+### Working
+
+
+
+
+GET {{HotelListing.API_HostAddress}}/api/hotels
+
+### Working
+
+GET {{HotelListing.API_HostAddress}}/api/hotels/{{id}}
+
+### Working
+
+POST {{HotelListing.API_HostAddress}}/api/hotels
+Content-Type: application/json
+
+{
+  "Name" : "Grand USA Hotel",
+  "Address" : "Washington DC",
+  "Rate" : 4.5,
+  "CountryId" : 4
+}
+
+### Working
+
+DELETE {{HotelListing.API_HostAddress}}/api/hotels/{{id}}
+
+### Working
+
+PUT {{HotelListing.API_HostAddress}}/api/hotels/{{id}}
+Content-Type: application/json
+
+{
+  "id" : 1,
+  "Name" : "Grand USA 2 Hotel",
+  "Address" : "New York",
+  "Rate" : 4,
+  "CountryId" : 4
+}
+
+### Working
+
+

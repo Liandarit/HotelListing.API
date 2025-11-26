@@ -1,9 +1,10 @@
+using AutoMapper;
+using HotelListing.API.Data;
+using HotelListing.API.DTOs.CountryDTOs;
+using HotelListing.API.DTOs.HotelsDTOs;
+using HotelListing.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HotelListing.API.Data;
-using HotelListing.API.Models;
-using AutoMapper;
-using HotelListing.API.DTOs.HotelsDTOs;
 
 namespace HotelListing.API.Controllers;
 
@@ -18,18 +19,22 @@ public class HotelsController(HotelListingDb context, IMapper mapper) : Controll
     public async Task<ActionResult<GetHotelsDto>> GetHotels()
     {
         var hotels = await context.Hotels
-            .Include(h=>h.Country)
-            .Include(h=>h.Reviews)
+            .AsNoTracking()
+            .Include(h => h.Country)
+            .Include(h => h.Reviews)
             .ToListAsync();
-        var HotelsDto = mapper.Map<GetHotelsDto>(hotels);
-        return Ok(HotelsDto);
+        var hotelsDto = mapper.Map<IEnumerable<GetHotelDto>>(hotels);
+        var result = new GetHotelsDto { Hotels = hotelsDto };
+        return Ok(result);
     }
+
 
     // GET: api/Hotels/5
     [HttpGet("{id}")]
     public async Task<ActionResult<GetHotelDto>> GetHotel(int id)
     {
         var hotel = await context.Hotels
+            .AsNoTracking() //Tracking kapadýk çünkü deðiþiklik yapmayacaðýz. Performans artsýn.
             .Include(h=>h.Country)
             .Include (h=>h.Reviews)
             .FirstOrDefaultAsync(h=>h.Id==id);
@@ -45,13 +50,10 @@ public class HotelsController(HotelListingDb context, IMapper mapper) : Controll
     // PUT: api/Hotels/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutHotel(int id, UpdateHotelDto dto)
+    public async Task<IActionResult> PutHotel(UpdateHotelDto dto)
     {
-        if (id != dto.Id)
-        {
-            return BadRequest();
-        }
-        var hotel = await context.Hotels.FindAsync(id);
+        if (dto.Id == 0) { return NotFound(); }
+        var hotel = await context.Hotels.FindAsync(dto.Id);
 
         if (hotel == null) { return NotFound(); }
         mapper.Map(dto,hotel);

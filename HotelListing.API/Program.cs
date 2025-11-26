@@ -1,11 +1,16 @@
+using HotelListing.API.Abstract;
 using HotelListing.API.Controllers;
 using HotelListing.API.Data;
 using HotelListing.API.DTOs;
 using HotelListing.API.DTOs.HotelsDTOs;
+using HotelListing.API.Repositories;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
+using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 builder.Services.AddDbContext<HotelListingDb>(options => options.UseSqlServer(ConnectionString));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(typeof(MappingProfiles)));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); 
+
+//Her repository için ayrý bir scope eklemeye gerek yok çünkü biz hepsini UoW üstünden kullanacaðýz.
+//Yani biz UoW'yu scope edince diðerleri de UoW içerisinde inherit edilecek.
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
     {
@@ -44,14 +53,23 @@ if (app.Environment.IsDevelopment())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-};
+    // 1. Swagger JSON dosyasýný Scalar'ýn beklediði adreste oluþturuyoruz
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("HotelListiningAPI")
+               .WithTheme(ScalarTheme.Moon); // Mars, Moon, BluePlanet, DeepSpace vb. seçilebilir
+    });
+}
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+ 
 
 app.Run();
